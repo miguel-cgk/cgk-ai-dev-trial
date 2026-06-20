@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Status {
+  TRIAGE
+  IN_PROGRESS
+  BLOCKED
+  RESOLVED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum Category {
+  ACCESS
+  INCIDENT
+  DATA
+  QUESTION
+  OTHER
+}
+
+enum ActivityType {
+  CREATED
+  STATUS_CHANGED
+  PRIORITY_CHANGED
+  OWNER_CHANGED
+  NOTE_ADDED
+}
+
+model Request {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  requester     String
+  category      Category
+  priority      Priority @default(MEDIUM)
+  status        Status   @default(TRIAGE)
+  ownerId       String?
+  ownerName     String?
+  createdById   String
+  createdByName String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  notes    Note[]
+  activity ActivityEvent[]
+
+  @@index([status])
+  @@index([priority])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model Note {
+  id         String   @id @default(cuid())
+  requestId  String
+  request    Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  authorId   String
+  authorName String
+  body       String
+  createdAt  DateTime @default(now())
+
+  @@index([requestId])
+}
+
+model ActivityEvent {
+  id        String       @id @default(cuid())
+  requestId String
+  request   Request      @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  type      ActivityType
+  actorId   String
+  actorName String
+  field     String?
+  fromValue String?
+  toValue   String?
+  createdAt DateTime     @default(now())
+
+  @@index([requestId])
+}

@@ -1,0 +1,3 @@
+# Mutations are Server Actions, protected server-side (no REST API layer)
+
+All writes (create Request, edit priority/status, add Note, assign Owner) are Next.js Server Actions rather than REST route handlers. Each action calls a shared `requireUser()` helper (`auth()` → redirect if unauthenticated) before touching data, and `clerkMiddleware()` additionally gates the `/dashboard` segment — defense in depth. We chose this over an `app/api/*` REST layer to cut boilerplate and keep end-to-end type safety; the trade-off is that there are no HTTP endpoints to point at, so protection lives inside the actions and is documented here to make clear it is deliberate, not missing.

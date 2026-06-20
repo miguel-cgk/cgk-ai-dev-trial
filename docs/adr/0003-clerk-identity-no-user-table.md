@@ -1,0 +1,3 @@
+# Clerk is the system of record for identity; no local User table
+
+Owners, creators, and note authors are stored as Clerk user ids plus a denormalized name snapshot, rather than as foreign keys into a local `User` table. We deliberately avoid syncing Clerk users into our database (no webhooks, no user-mirroring), which removes a whole class of setup and failure modes for a 2–3 hour project. The trade-off is that a name snapshot can go stale if a user renames themselves — acceptable for a triage tool where display names are non-authoritative. Requester is plain free text because the person needing help is typically not a user of the app.
