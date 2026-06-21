@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+
 export default function DashboardError({
   error,
   reset,
@@ -8,15 +10,12 @@ export default function DashboardError({
   reset: () => void;
 }) {
   return (
-    <div style={{ padding: "2rem 0" }}>
-      <h2 style={{ fontWeight: 600 }}>Something went wrong</h2>
-      <p style={{ opacity: 0.7, marginTop: "0.5rem" }}>{error.message}</p>
-      <button
-        onClick={() => reset()}
-        style={{ marginTop: "1rem", padding: "0.5rem 1rem", borderRadius: 8, cursor: "pointer" }}
-      >
-        Try again
-      </button>
+    <div className="space-y-3 py-16 text-center">
+      <h2 className="text-lg font-semibold">Something went wrong</h2>
+      <p className="text-sm text-muted-foreground">
+        {error.message || "An unexpected error occurred."}
+      </p>
+      <Button onClick={() => reset()}>Try again</Button>
     </div>
   );
 }
