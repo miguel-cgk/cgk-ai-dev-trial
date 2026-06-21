@@ -29,27 +29,31 @@ export async function createRequest(
   }
   const data = parsed.data;
 
-  const request = await prisma.request.create({
-    data: {
-      title: data.title,
-      description: data.description || null,
-      requester: data.requester,
-      category: data.category,
-      priority: data.priority,
-      createdById: user.id,
-      createdByName: user.name,
-      activity: {
-        create: {
-          type: "CREATED",
-          actorId: user.id,
-          actorName: user.name,
+  try {
+    const request = await prisma.request.create({
+      data: {
+        title: data.title,
+        description: data.description || null,
+        requester: data.requester,
+        category: data.category,
+        priority: data.priority,
+        createdById: user.id,
+        createdByName: user.name,
+        activity: {
+          create: {
+            type: "CREATED",
+            actorId: user.id,
+            actorName: user.name,
+          },
         },
       },
-    },
-  });
+    });
 
-  revalidateRequest(request.id);
-  return { id: request.id };
+    revalidateRequest(request.id);
+    return { id: request.id };
+  } catch {
+    return { error: "Could not create request." };
+  }
 }
 
 export async function updateStatus(id: string, status: Status): Promise<ActionResult> {

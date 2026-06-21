@@ -24,12 +24,19 @@ import {
 
 const ALL = "ALL";
 
+function normalizeFilter<T extends string>(value: string | null, allowed: readonly T[]): string {
+  return value && (allowed as readonly string[]).includes(value) ? value : ALL;
+}
+
 export function QueueToolbar() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [, startTransition] = React.useTransition();
-  const [q, setQ] = React.useState(searchParams.get("q") ?? "");
+
+  const urlQ = searchParams.get("q") ?? "";
+  const [q, setQ] = React.useState(urlQ);
+  const lastPushedRef = React.useRef(urlQ);
 
   const setParam = React.useCallback(
     (key: string, value: string | null) => {
@@ -45,16 +52,27 @@ export function QueueToolbar() {
     [pathname, router, searchParams],
   );
 
+  // Re-sync the input when the URL `q` changes externally (back/forward, link nav),
+  // ignoring the URL updates this component itself pushed.
   React.useEffect(() => {
-    const current = searchParams.get("q") ?? "";
-    if (q === current) return;
-    const timer = setTimeout(() => setParam("q", q || null), 300);
-    return () => clearTimeout(timer);
-  }, [q, searchParams, setParam]);
+    if (urlQ !== lastPushedRef.current) {
+      lastPushedRef.current = urlQ;
+      setQ(urlQ);
+    }
+  }, [urlQ]);
 
-  const status = searchParams.get("status") ?? ALL;
-  const priority = searchParams.get("priority") ?? ALL;
-  const category = searchParams.get("category") ?? ALL;
+  React.useEffect(() => {
+    if (q === urlQ) return;
+    const timer = setTimeout(() => {
+      lastPushedRef.current = q;
+      setParam("q", q || null);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [q, urlQ, setParam]);
+
+  const status = normalizeFilter(searchParams.get("status"), STATUS_VALUES);
+  const priority = normalizeFilter(searchParams.get("priority"), PRIORITY_VALUES);
+  const category = normalizeFilter(searchParams.get("category"), CATEGORY_VALUES);
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
