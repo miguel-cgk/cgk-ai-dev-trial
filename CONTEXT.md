@@ -35,7 +35,7 @@ _Avoid_: reporter; author (reserve "author" for Notes)
 ### Classification
 
 **Status**:
-Where a Request sits in its lifecycle (e.g. Triage → In Progress → Blocked → Resolved).
+Where a Request sits in its lifecycle. Triage → In Progress → Blocked → Resolved is the conventional flow, but any Status can move to any other — the order is a convention, not an enforced sequence (there is no separate "reopen").
 _Avoid_: state, stage
 
 **Priority**:
@@ -51,5 +51,9 @@ _Avoid_: type, tag
 Assessing an incoming Request and setting its Priority, Category, and Owner so work is handled in the right order.
 
 **Triage helper**:
-A small recommendation engine that suggests a Priority (and Category) for a Request from its content, with human-readable reasons. The human always decides.
+A small recommendation engine that suggests a Priority and Category for a Request from its content, with human-readable reasons and a Confidence. The human always decides.
 _Avoid_: AI assistant, bot, classifier
+
+**Confidence**:
+How strongly the Triage helper's signals back its suggestion (Low / Medium / High). Low means it is essentially a baseline guess with no strong signal; High means a clear Category match plus an urgency signal.
+_Avoid_: score, certainty, probability

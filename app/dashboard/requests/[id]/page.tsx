@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
 import { ArrowLeft } from "lucide-react";
 
+import { requireUser } from "@/lib/auth";
+import { listAssignableUsers } from "@/lib/users";
 import { getRequest } from "@/lib/requests/queries";
 import { PrioritySelect, StatusSelect } from "@/components/requests/field-selects";
-import { AssignButton } from "@/components/requests/assign-button";
+import { OwnerSelect } from "@/components/requests/owner-select";
 import { AddNoteForm } from "@/components/requests/add-note-form";
 import { Badge } from "@/components/ui/badge";
 import { activityVerb, CATEGORY_LABEL, formatDateTime } from "@/lib/requests/display";
@@ -36,8 +37,9 @@ export default async function RequestDetailPage({
   const request = await getRequest(id);
   if (!request) notFound();
 
-  const { userId } = await auth();
-  const isOwner = Boolean(userId) && request.ownerId === userId;
+  const me = await requireUser();
+  // Owner list is read live from Clerk (ADR 0003); degrade gracefully if it fails.
+  const users = await listAssignableUsers().catch(() => []);
 
   return (
     <div className="space-y-6">
@@ -67,10 +69,13 @@ export default async function RequestDetailPage({
             <StatusSelect id={request.id} value={request.status} size="default" />
           </Field>
           <Field label="Owner">
-            <div className="flex items-center gap-2">
-              <span className="text-sm">{request.ownerName ?? "Unassigned"}</span>
-              <AssignButton id={request.id} isOwner={isOwner} />
-            </div>
+            <OwnerSelect
+              id={request.id}
+              ownerId={request.ownerId}
+              ownerName={request.ownerName}
+              currentUser={me}
+              users={users}
+            />
           </Field>
         </div>
       </div>

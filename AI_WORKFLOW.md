@@ -3,7 +3,7 @@
 ## Tools
 
 - **Cursor** with Claude (agent mode) for design, scaffolding, and implementation.
-- A structured **design interview** ("grilling") plus a **domain-modeling** pass up front. Decisions were captured as ADRs (`docs/adr/`) and a glossary (`CONTEXT.md`) *before* writing code.
+- A structured **design interview** ("grilling") plus a **domain-modeling** pass up front. Decisions were captured as ADRs (`docs/adr/`) and a glossary (`CONTEXT.md`) _before_ writing code.
 
 ## How AI was used, by phase
 
@@ -14,9 +14,15 @@
 
 ## Important prompts & review process
 
-- *"Act as a skeptical hiring manager; identify the decisions that most impact the score and interview me one at a time, with tradeoffs."* → produced the decision log and ADRs.
-- *"Freeze the contracts first so feature work can proceed against interfaces."* → the `lib/*` stubs.
+- _"You are acting as a senior staff engineer, product architect; identify the decisions that most create product value, one at a time, with tradeoffs."_ → produced the decision log and ADRs.
+- _"Freeze the contracts first so feature work can proceed against interfaces."_ → the `lib/*` stubs.
 - Every AI-generated file was reviewed for: correct server/client boundaries, mutations re-checking auth, Zod validation on untrusted input, and no secrets in code. The **production build** (TypeScript + ESLint) and the **triage unit tests** were the automated gates.
+
+## AI code review (Bugbot)
+
+After Phase 1, an AI review subagent was run over the diff with the auth/boundary/transaction checklist as custom instructions.
+
+**Why it helped:** the AI review acted as a second reviewer focused on UI-state/URL-sync and error-path edge cases that are easy to miss by eye and that neither the type checker nor the existing tests would catch. It returned precise `file:line` findings with rationale, which made each fix a small, targeted change. All gates were re-run green afterward.
 
 ## AI suggestions that were rejected or modified
 

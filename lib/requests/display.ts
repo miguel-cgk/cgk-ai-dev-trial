@@ -1,4 +1,5 @@
 import type { Category, Priority, Status } from "@prisma/client";
+import type { Confidence } from "@/lib/triage/types";
 
 export const STATUS_VALUES: Status[] = ["TRIAGE", "IN_PROGRESS", "BLOCKED", "RESOLVED"];
 export const PRIORITY_VALUES: Priority[] = ["LOW", "MEDIUM", "HIGH", "URGENT"];
@@ -26,6 +27,17 @@ export const CATEGORY_LABEL: Record<Category, string> = {
   OTHER: "Other",
 };
 
+export const CONFIDENCE_LABEL: Record<Confidence, string> = {
+  LOW: "Low confidence",
+  MEDIUM: "Medium confidence",
+  HIGH: "High confidence",
+};
+
+/** Trigger labels for the queue filter selects, including the "ALL" sentinel. */
+export const STATUS_FILTER_LABEL: Record<string, string> = { ALL: "All statuses", ...STATUS_LABEL };
+export const PRIORITY_FILTER_LABEL: Record<string, string> = { ALL: "All priorities", ...PRIORITY_LABEL };
+export const CATEGORY_FILTER_LABEL: Record<string, string> = { ALL: "All categories", ...CATEGORY_LABEL };
+
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
 export const PRIORITY_BADGE: Record<Priority, BadgeVariant> = {
@@ -40,6 +52,12 @@ export const STATUS_BADGE: Record<Status, BadgeVariant> = {
   IN_PROGRESS: "default",
   BLOCKED: "destructive",
   RESOLVED: "secondary",
+};
+
+export const CONFIDENCE_BADGE: Record<Confidence, BadgeVariant> = {
+  LOW: "outline",
+  MEDIUM: "secondary",
+  HIGH: "default",
 };
 
 const ACTIVITY_VERB: Record<string, string> = {

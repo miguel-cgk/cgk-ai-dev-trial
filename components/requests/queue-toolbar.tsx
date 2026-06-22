@@ -14,10 +14,13 @@ import {
 } from "@/components/ui/select";
 import { CreateRequestDialog } from "./create-request-dialog";
 import {
+  CATEGORY_FILTER_LABEL,
   CATEGORY_LABEL,
   CATEGORY_VALUES,
+  PRIORITY_FILTER_LABEL,
   PRIORITY_LABEL,
   PRIORITY_VALUES,
+  STATUS_FILTER_LABEL,
   STATUS_LABEL,
   STATUS_VALUES,
 } from "@/lib/requests/display";
@@ -89,7 +92,7 @@ export function QueueToolbar() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Select value={status} onValueChange={(v) => setParam("status", v === ALL ? null : String(v))}>
+          <Select items={STATUS_FILTER_LABEL} value={status} onValueChange={(v) => setParam("status", v === ALL ? null : String(v))}>
             <SelectTrigger aria-label="Filter by status">
               <SelectValue />
             </SelectTrigger>
@@ -103,7 +106,7 @@ export function QueueToolbar() {
             </SelectContent>
           </Select>
 
-          <Select value={priority} onValueChange={(v) => setParam("priority", v === ALL ? null : String(v))}>
+          <Select items={PRIORITY_FILTER_LABEL} value={priority} onValueChange={(v) => setParam("priority", v === ALL ? null : String(v))}>
             <SelectTrigger aria-label="Filter by priority">
               <SelectValue />
             </SelectTrigger>
@@ -117,7 +120,7 @@ export function QueueToolbar() {
             </SelectContent>
           </Select>
 
-          <Select value={category} onValueChange={(v) => setParam("category", v === ALL ? null : String(v))}>
+          <Select items={CATEGORY_FILTER_LABEL} value={category} onValueChange={(v) => setParam("category", v === ALL ? null : String(v))}>
             <SelectTrigger aria-label="Filter by category">
               <SelectValue />
             </SelectTrigger>

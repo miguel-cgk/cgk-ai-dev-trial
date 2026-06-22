@@ -4,6 +4,9 @@ export const statusSchema = z.enum(["TRIAGE", "IN_PROGRESS", "BLOCKED", "RESOLVE
 export const prioritySchema = z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]);
 export const categorySchema = z.enum(["ACCESS", "INCIDENT", "DATA", "QUESTION", "OTHER"]);
 
+/** A Clerk user id to assign as Owner, or null to unassign. */
+export const ownerIdSchema = z.string().trim().min(1).max(255).nullable();
+
 export const createRequestSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(200),
   description: z.string().trim().max(5000).optional(),

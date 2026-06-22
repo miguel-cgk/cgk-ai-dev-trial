@@ -3,7 +3,7 @@ import { PrismaClient, type Category, type Priority, type Status } from "@prisma
 const prisma = new PrismaClient();
 
 const ownerUserId = process.env.SEED_OWNER_USER_ID?.trim() || null;
-const ownerName = process.env.SEED_OWNER_NAME?.trim() || "Demo Reviewer";
+const ownerName = process.env.SEED_OWNER_NAME?.trim() || "John Doe";
 const creatorId = ownerUserId ?? "seed-script";
 const creatorName = ownerUserId ? ownerName : "Seed script";
 

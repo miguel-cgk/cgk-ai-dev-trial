@@ -1,10 +1,23 @@
 import type { Category, Priority } from "@prisma/client";
-import type { TriageInput, TriageResult, TriageStrategy } from "./types";
+import type { Confidence, TriageInput, TriageResult, TriageStrategy } from "./types";
 
 const PRIORITY_ORDER: Priority[] = ["LOW", "MEDIUM", "HIGH", "URGENT"];
 
 function isHigher(a: Priority, b: Priority): boolean {
   return PRIORITY_ORDER.indexOf(a) > PRIORITY_ORDER.indexOf(b);
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Whole-token match: a keyword only counts when it isn't glued to surrounding
+ * letters/digits. Prevents "down" matching "download" or "500" matching "$1500".
+ */
+function mentions(haystack: string, keyword: string): boolean {
+  const pattern = new RegExp(`(?<![a-z0-9])${escapeRegExp(keyword)}(?![a-z0-9])`, "i");
+  return pattern.test(haystack);
 }
 
 /** Where each category starts before any urgency signals are applied. */
@@ -84,11 +97,26 @@ const CATEGORY_HINTS: { category: Category; keywords: string[] }[] = [
   },
 ];
 
+/**
+ * Picks the category with the most keyword hits (not the first one to match), so
+ * "can't log in, getting a 500 error" weighs ACCESS vs INCIDENT instead of
+ * silently taking whichever rule is listed first. Ties keep CATEGORY_HINTS order.
+ */
 function detectCategory(text: string): Category | null {
+  let best: { category: Category; score: number } | null = null;
   for (const hint of CATEGORY_HINTS) {
-    if (hint.keywords.some((k) => text.includes(k))) return hint.category;
+    const score = hint.keywords.reduce((n, k) => (mentions(text, k) ? n + 1 : n), 0);
+    if (score > 0 && (best === null || score > best.score)) {
+      best = { category: hint.category, score };
+    }
   }
-  return null;
+  return best?.category ?? null;
+}
+
+function confidenceFrom(hasCategorySignal: boolean, hasUrgencySignal: boolean): Confidence {
+  if (hasCategorySignal && hasUrgencySignal) return "HIGH";
+  if (hasCategorySignal || hasUrgencySignal) return "MEDIUM";
+  return "LOW";
 }
 
 /**
@@ -100,10 +128,12 @@ export const ruleTriage: TriageStrategy = {
     const haystack = `${input.title} ${input.description ?? ""}`.toLowerCase();
     const reasons: string[] = [];
 
-    const category: Category = input.category ?? detectCategory(haystack) ?? "OTHER";
+    const detected = input.category ? null : detectCategory(haystack);
+    const category: Category = input.category ?? detected ?? "OTHER";
+    const hasCategorySignal = Boolean(input.category) || detected !== null;
     if (input.category) {
       reasons.push(`Using the selected category (${category}).`);
-    } else if (category !== "OTHER") {
+    } else if (detected) {
       reasons.push(`Detected category ${category} from the text.`);
     } else {
       reasons.push("No category signal found; defaulting to OTHER.");
@@ -112,15 +142,24 @@ export const ruleTriage: TriageStrategy = {
     let priority: Priority = CATEGORY_BASELINE[category];
     reasons.push(`${category} requests start at ${priority} priority.`);
 
+    let hasUrgencySignal = false;
     for (const signal of URGENCY_SIGNALS) {
-      const match = signal.keywords.find((k) => haystack.includes(k));
-      if (match && isHigher(signal.priority, priority)) {
-        priority = signal.priority;
-        reasons.push(`The phrase "${match}" raised it to ${signal.priority}.`);
+      const match = signal.keywords.find((k) => mentions(haystack, k));
+      if (match) {
+        hasUrgencySignal = true;
+        if (isHigher(signal.priority, priority)) {
+          priority = signal.priority;
+          reasons.push(`The phrase "${match}" raised it to ${signal.priority}.`);
+        }
       }
     }
 
-    return { priority, category, reasons };
+    const confidence = confidenceFrom(hasCategorySignal, hasUrgencySignal);
+    if (confidence === "LOW") {
+      reasons.push("Low confidence: no strong category or urgency signal.");
+    }
+
+    return { priority, category, confidence, reasons };
   },
 };
 

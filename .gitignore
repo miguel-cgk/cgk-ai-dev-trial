@@ -32,3 +32,6 @@ next-env.d.ts
 
 # test coverage
 /coverage
+
+
+.agents/tmp

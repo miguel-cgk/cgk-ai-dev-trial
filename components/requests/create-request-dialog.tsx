@@ -30,6 +30,7 @@ import { createRequest } from "@/lib/requests/actions";
 import {
   CATEGORY_LABEL,
   CATEGORY_VALUES,
+  CONFIDENCE_LABEL,
   PRIORITY_BADGE,
   PRIORITY_LABEL,
   PRIORITY_VALUES,
@@ -138,7 +139,7 @@ export function CreateRequestDialog() {
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-2">
                 <Label>Category</Label>
-                <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
+                <Select items={CATEGORY_LABEL} value={category} onValueChange={(v) => setCategory(v as Category)}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -154,7 +155,7 @@ export function CreateRequestDialog() {
 
               <div className="grid gap-2">
                 <Label>Priority</Label>
-                <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
+                <Select items={PRIORITY_LABEL} value={priority} onValueChange={(v) => setPriority(v as Priority)}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -175,6 +176,9 @@ export function CreateRequestDialog() {
                   <div className="flex items-center gap-2 font-medium">
                     <Sparkles className="size-4 text-muted-foreground" />
                     Triage suggestion
+                    <span className="text-xs font-normal text-muted-foreground">
+                      · {CONFIDENCE_LABEL[suggestion.confidence]}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Badge variant="outline">{CATEGORY_LABEL[suggestion.category]}</Badge>

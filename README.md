@@ -9,8 +9,8 @@ A small authenticated app for logging incoming operational requests and triaging
 
 1. Open the live URL and click **Sign in to start**.
 2. Sign in with the demo account:
-   - **Email:** `reviewer@triage.demo`
-   - **Password:** `<set in Clerk — see reviewer notes>`
+   - **Email:** `miguel.cgk@gmail.com`
+   - **Password:** `miguelcgk2026`
 3. You'll land on the dashboard with a seeded queue. Try: filtering by status/priority/category, searching, creating a request (watch the **triage suggestion**), editing priority/status inline, and opening a request to add notes / view its activity timeline.
 
 You can also sign up with your own email — it's a live Clerk instance.
@@ -59,18 +59,18 @@ npm run dev              # http://localhost:3000
 
 ## Environment variables
 
-| Variable | Required | Purpose |
-|---|---|---|
-| `DATABASE_URL` | yes | Pooled Neon Postgres connection (runtime) |
-| `DIRECT_URL` | yes | Direct/unpooled connection (migrations) |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | yes | Clerk publishable key |
-| `CLERK_SECRET_KEY` | yes | Clerk secret key |
-| `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | recommended | `/sign-in` (use the in-app page, not the hosted portal) |
-| `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | recommended | `/sign-up` |
-| `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL` | recommended | `/dashboard` |
-| `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | recommended | `/dashboard` |
-| `SEED_OWNER_USER_ID` | seed only | Clerk user id that owns seeded requests |
-| `SEED_OWNER_NAME` | seed only | Display name for the seed owner (default `Demo Reviewer`) |
+| Variable                                          | Required    | Purpose                                                 |
+| ------------------------------------------------- | ----------- | ------------------------------------------------------- |
+| `DATABASE_URL`                                    | yes         | Pooled Neon Postgres connection (runtime)               |
+| `DIRECT_URL`                                      | yes         | Direct/unpooled connection (migrations)                 |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`               | yes         | Clerk publishable key                                   |
+| `CLERK_SECRET_KEY`                                | yes         | Clerk secret key                                        |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_URL`                   | recommended | `/sign-in` (use the in-app page, not the hosted portal) |
+| `NEXT_PUBLIC_CLERK_SIGN_UP_URL`                   | recommended | `/sign-up`                                              |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL` | recommended | `/dashboard`                                            |
+| `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | recommended | `/dashboard`                                            |
+| `SEED_OWNER_USER_ID`                              | seed only   | Clerk user id that owns seeded requests                 |
+| `SEED_OWNER_NAME`                                 | seed only   | Display name for the seed owner (default `John Doe`)    |
 
 ## Deployment notes (Vercel)
 

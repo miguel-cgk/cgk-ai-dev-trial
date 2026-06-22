@@ -38,6 +38,7 @@ export function StatusSelect({
 
   return (
     <Select
+      items={STATUS_LABEL}
       value={current}
       onValueChange={(next) => {
         const status = next as Status;
@@ -86,6 +87,7 @@ export function PrioritySelect({
 
   return (
     <Select
+      items={PRIORITY_LABEL}
       value={current}
       onValueChange={(next) => {
         const priority = next as Priority;

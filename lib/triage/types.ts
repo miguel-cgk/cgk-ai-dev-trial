@@ -1,5 +1,8 @@
 import type { Category, Priority } from "@prisma/client";
 
+/** How strongly the helper's signals back its suggestion. */
+export type Confidence = "LOW" | "MEDIUM" | "HIGH";
+
 export type TriageInput = {
   title: string;
   description?: string;
@@ -9,6 +12,7 @@ export type TriageInput = {
 export type TriageResult = {
   priority: Priority;
   category: Category;
+  confidence: Confidence;
   reasons: string[];
 };
 

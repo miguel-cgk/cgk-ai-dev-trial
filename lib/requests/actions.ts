@@ -4,9 +4,11 @@ import { revalidatePath } from "next/cache";
 import type { Priority, Status } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
+import { resolveUserName } from "@/lib/users";
 import {
   addNoteSchema,
   createRequestSchema,
+  ownerIdSchema,
   prioritySchema,
   statusSchema,
 } from "@/lib/requests/validation";
@@ -116,14 +118,27 @@ export async function updatePriority(id: string, priority: Priority): Promise<Ac
   return { ok: true };
 }
 
-export async function assignOwner(id: string, assign: boolean): Promise<ActionResult> {
+export async function assignOwner(
+  id: string,
+  ownerId: string | null,
+): Promise<ActionResult> {
   const user = await requireUser();
+
+  const parsed = ownerIdSchema.safeParse(ownerId);
+  if (!parsed.success) return { ok: false, error: "Invalid owner." };
+  const nextOwnerId = parsed.data;
+
+  // Resolve the name snapshot server-side; never trust a client-supplied name (ADR 0003/0005).
+  let nextOwnerName: string | null = null;
+  if (nextOwnerId) {
+    nextOwnerName =
+      nextOwnerId === user.id ? user.name : await resolveUserName(nextOwnerId);
+    if (!nextOwnerName) return { ok: false, error: "That user no longer exists." };
+  }
 
   try {
     await prisma.$transaction(async (tx) => {
       const current = await tx.request.findUniqueOrThrow({ where: { id } });
-      const nextOwnerId = assign ? user.id : null;
-      const nextOwnerName = assign ? user.name : null;
       if (current.ownerId === nextOwnerId) return;
 
       await tx.request.update({
